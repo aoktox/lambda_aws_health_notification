@@ -1,7 +1,7 @@
 {%if resources is defined %}
 ## Affected resources
 {% for resource in resources %}
-- {{ resource.InstanceId or resource }} | {{ resource.Service or 'N/A' }} | {{resource.ProductDomain or 'N/A'}}
+- {{ resource.InstanceId or resource }} | {{ resource.Service or resource.Cluster|default('N/A', true) }} | {{resource.ProductDomain or 'N/A'}}
 {% endfor %}
 {% endif%}
 

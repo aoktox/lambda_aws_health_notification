@@ -1,27 +1,19 @@
-from __future__ import print_function
-
-import os
 import logging
 import boto3
 import jinja2
-import json
 import slack
-import io
-
-from base64 import b64decode
-
 
 # setup logger
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 slackChannel = boto3.client('ssm').get_parameter(
-    Name="/tvlk-secret/tsiaihn/tsi/slack_channel",
+    Name="/tvlk-secret/health_notif/devops/slack_channel",
     WithDecryption=True
 )['Parameter']['Value']
 
 slackToken = boto3.client('ssm').get_parameter(
-    Name="/tvlk-secret/tsiaihn/tsi/slack_token",
+    Name="/tvlk-secret/health_notif/devops/slack_token",
     WithDecryption=True
 )['Parameter']['Value']
 
@@ -47,6 +39,8 @@ def get_ec2_tags(instanceIds):
                         tag['ProductDomain'] = instance_tag['Value']
                     if instance_tag['Key'] == "Service":
                         tag['Service'] = instance_tag['Value']
+                    if instance_tag['Key'] == "Cluster":
+                        tag['Cluster'] = instance_tag['Value']
                 instance_tags.append(tag)
     except Exception as e:
         print(e)
@@ -90,6 +84,8 @@ def get_rds_tags(dbInstances):
                     tag['ProductDomain'] = instance_tag['Value']
                 if instance_tag['Key'] == "Service":
                     tag['Service'] = instance_tag['Value']
+                if instance_tag['Key'] == "Cluster":
+                    tag['Cluster'] = instance_tag['Value']
             db_instance_tags.append(tag)
         except Exception as err:
             print(err)

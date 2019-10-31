@@ -1,0 +1,31 @@
+{
+    "production": {
+        "app_function": "aws_health_notification.app",
+        "project_name": "aws_health_notification",
+        "exclude": [
+            "boto3*",
+            "botocore*",
+            "argcomplete*",
+            "certifi*",
+            "cfn*",
+            "click*",
+            "Click*",
+            "durationpy*",
+            "future*",
+            "hjson*",
+            "kappa*",
+            "lambda_packages*",
+            "placebo*",
+            "python-slugify*",
+            "PyYAML*",
+            "requests*",
+            "toml*",
+            "tqdm*",
+            "troposphere*",
+            "Unidecode*",
+            "Werkzeug*",
+            "wsgi-request-logger*",
+            "zappa*"
+        ]
+    }
+}
