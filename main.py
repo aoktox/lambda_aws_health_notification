@@ -7,20 +7,8 @@ import slack
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-slackChannel = boto3.client('ssm').get_parameter(
-    Name="/tvlk-secret/health_notif/devops/slack_channel",
-    WithDecryption=True
-)['Parameter']['Value']
-
-slackToken = boto3.client('ssm').get_parameter(
-    Name="/tvlk-secret/health_notif/devops/slack_token",
-    WithDecryption=True
-)['Parameter']['Value']
-
 ec2_client = boto3.client('ec2')
 rds_client = boto3.client('rds')
-
-sc = slack.WebClient(token=slackToken)
 
 
 def get_ec2_tags(instanceIds):
@@ -104,6 +92,27 @@ def get_affected_resources(service, resources):
     return affected_resources if affected_resources else resources
 
 
+def get_account_alias():
+    try:
+        return "{} | ".format(str(boto3.client('iam').list_account_aliases()['AccountAliases'][0]).upper())
+    except:
+        return ""
+
+
+def create_slack_client():
+    slackChannel = boto3.client('ssm').get_parameter(
+        Name="/tvlk-secret/health_notif/devops/slack_channel",
+        WithDecryption=True
+    )['Parameter']['Value']
+
+    slackToken = boto3.client('ssm').get_parameter(
+        Name="/tvlk-secret/health_notif/devops/slack_token",
+        WithDecryption=True
+    )['Parameter']['Value']
+
+    return [slack.WebClient(token=slackToken), slackChannel]
+
+
 def lambda_handler(event, context):
     """
     main lambda function for handling events of AWS infrastructure health notification
@@ -123,7 +132,7 @@ def lambda_handler(event, context):
         eventDescription=eventDescription.replace("\\n", "\n"),
         resources=affectedResources
     )
-    postFileandTitle = "Amazon " + service.upper()
+    postFileandTitle = "{}Amazon {}".format(get_account_alias(), service.upper())
     if eventTypeCategory == "scheduledChange":
         postFileandTitle = postFileandTitle + " Scheduled Maintenance"
     elif eventTypeCategory == "issue":
@@ -131,8 +140,10 @@ def lambda_handler(event, context):
     elif eventTypeCategory == "accountNotification":
         postFileandTitle = postFileandTitle + " Account Notification"
     try:
+        sc, slack_channel = create_slack_client()
+
         response = sc.files_upload(
-            channels=slackChannel,
+            channels=slack_channel,
             content=message,
             filetype="post",
             filename=postFileandTitle,
@@ -143,7 +154,10 @@ def lambda_handler(event, context):
     except Exception as error:
         print(error)
 
-# if __name__ == "__main__":
-#    with open("event_example.json") as json_file:
-#        data = json.load(json_file)
-#        lambda_handler(data, "context")
+
+if __name__ == "__main__":
+    with open("event_example.json") as json_file:
+        import json
+
+        data = json.load(json_file)
+        lambda_handler(data, "context")
