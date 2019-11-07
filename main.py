@@ -101,12 +101,12 @@ def get_account_alias():
 
 def create_slack_client():
     slackChannel = boto3.client('ssm').get_parameter(
-        Name="/tvlk-secret/health_notif/devops/slack_channel",
+        Name="/tvlk-secret/health_notif/slack/channel",
         WithDecryption=True
     )['Parameter']['Value']
 
     slackToken = boto3.client('ssm').get_parameter(
-        Name="/tvlk-secret/health_notif/devops/slack_token",
+        Name="/tvlk-secret/health_notif/slack/token",
         WithDecryption=True
     )['Parameter']['Value']
 
