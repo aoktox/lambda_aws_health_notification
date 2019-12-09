@@ -12,9 +12,9 @@
     ],
     "detail": {
         "eventArn": "arn:aws:health:region::event/id",
-        "service": "service",
+        "service": "EC2",
         "eventTypeCode": "AWS_service_code",
-        "eventTypeCategory": "category",
+        "eventTypeCategory": "Maintenance",
         "startTime": "Sun, 05 Jun 2016 05:01:10 GMT",
         "endTime": "Sun, 05 Jun 2016 05:30:57 GMT",
         "eventDescription": [
